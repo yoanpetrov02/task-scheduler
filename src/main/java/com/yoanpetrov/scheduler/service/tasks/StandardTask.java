@@ -5,9 +5,11 @@ import java.util.List;
 
 class StandardTask implements Task {
 
+  private final long id;
   private final String[] commands;
 
-  StandardTask(String[] commands) {
+  StandardTask(long id, String[] commands) {
+    this.id = id;
     this.commands = commands;
   }
 
@@ -23,5 +25,10 @@ class StandardTask implements Task {
     List<String> outputs = StreamUtils.readLines(p.getInputStream());
 
     return new CommandLineTaskResult(exitCode, outputs);
+  }
+
+  @Override
+  public long id() {
+    return id;
   }
 }

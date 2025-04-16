@@ -5,10 +5,12 @@ import java.util.List;
 
 class WaitingTask implements Task {
 
+  private final long id;
   private final String[] commands;
   private final long waitMs;
 
-  WaitingTask(String[] commands, long waitMs) {
+  WaitingTask(long id, String[] commands, long waitMs) {
+    this.id = id;
     this.commands = commands;
     this.waitMs = waitMs;
   }
@@ -29,5 +31,10 @@ class WaitingTask implements Task {
     List<String> outputs = StreamUtils.readLines(p.getInputStream());
 
     return new CommandLineTaskResult(exitCode, outputs);
+  }
+
+  @Override
+  public long id() {
+    return id;
   }
 }
