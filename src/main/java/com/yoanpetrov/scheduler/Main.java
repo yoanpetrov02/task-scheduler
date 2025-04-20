@@ -5,10 +5,13 @@ import com.yoanpetrov.scheduler.service.TaskExecutor;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        TaskExecutor taskExecutor = new TaskExecutor(10);
+        int threadPoolSize = 10; // default
+        if (args.length >= 1) {
+            threadPoolSize = Integer.parseInt(args[0]);
+        }
+        TaskExecutor taskExecutor = new TaskExecutor(threadPoolSize);
+        ConsoleTaskExecutorClient consoleTaskExecutorClient = new ConsoleTaskExecutorClient(taskExecutor);
 
-        Thread.sleep(10000);
-
-        taskExecutor.awaitTermination();
+        consoleTaskExecutorClient.start();
     }
 }

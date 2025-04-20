@@ -30,18 +30,20 @@ public class Distributor extends Thread implements TaskObserver {
         Task t = taskQueue.take();
         Worker w = workerThreadPool.retrieveWorkerForTask(t.id());
         w.giveTask(t);
-
       } catch (InterruptedException e) {
-        break;
+        Thread.currentThread().interrupt();
+        terminate();
       }
     }
   }
 
+  // this method will be called by Worker threads, which means that they will hang while waiting to
+  // return to the pool.
   @Override
-  public void notifyFinishedTask(Task t, Worker w, CommandLineTaskResult result) {
-    try {
-      workerThreadPool.returnWorker(t.id(), w);
-    } catch (InterruptedException e) {}
+  public void notifyFinishedTask(Task t, Worker w, CommandLineTaskResult result)
+      throws InterruptedException {
+    workerThreadPool.returnWorker(t.id(), w);
+    // todo save the result. Implement a ResultStorage interface with multiple implementations that can save in different stores. Store can be in-memory (object) or file.
   }
 
   public void terminate() {

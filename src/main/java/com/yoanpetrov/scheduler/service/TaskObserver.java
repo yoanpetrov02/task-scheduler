@@ -6,5 +6,5 @@ import com.yoanpetrov.scheduler.service.workers.Worker;
 
 public interface TaskObserver {
 
-  void notifyFinishedTask(Task t, Worker w, CommandLineTaskResult result);
+  void notifyFinishedTask(Task t, Worker w, CommandLineTaskResult result) throws InterruptedException;
 }

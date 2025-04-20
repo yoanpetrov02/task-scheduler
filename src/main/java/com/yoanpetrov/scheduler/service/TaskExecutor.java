@@ -8,13 +8,11 @@ import java.util.concurrent.*;
 
 public class TaskExecutor {
 
-  private final int threadPoolSize;
   private final WorkerThreadPool workerThreadPool;
   private final BlockingQueue<Task> taskQueue;
   private final Distributor distributorThread;
 
   public TaskExecutor(int threadPoolSize) {
-    this.threadPoolSize = threadPoolSize;
     this.workerThreadPool = new WorkerThreadPool(threadPoolSize);
     this.taskQueue = new LinkedBlockingQueue<>();
     this.distributorThread = new Distributor(workerThreadPool, taskQueue);
@@ -23,18 +21,21 @@ public class TaskExecutor {
     Log.logger.info("Started distributor thread");
   }
 
-  public void submitTask(Task t) throws InterruptedException {
-    Log.logger.info("Submitting task with id {}", t.id());
-    taskQueue.put(t);
+  public void submitTask(Task t) {
+    try {
+      Log.logger.info("Submitting task with id {}", t.id());
+      taskQueue.put(t);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      shutdownAndAwaitTermination();
+    }
   }
 
-  public void awaitTermination() throws InterruptedException {
-    distributorThread.terminate();
-    distributorThread.join(10000);
-    //workerThreadPool.awaitTermination(10, TimeUnit.SECONDS); todo implement termination in our pool
-  }
-
-  public int getThreadPoolSize() {
-    return threadPoolSize;
+  public void shutdownAndAwaitTermination() {
+    try {
+      distributorThread.terminate();
+      distributorThread.join(10000);
+      workerThreadPool.shutdown();
+    } catch (InterruptedException ignored) {}
   }
 }

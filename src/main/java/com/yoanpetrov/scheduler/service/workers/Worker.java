@@ -1,5 +1,6 @@
 package com.yoanpetrov.scheduler.service.workers;
 
+import com.yoanpetrov.scheduler.Log;
 import com.yoanpetrov.scheduler.service.TaskObservable;
 import com.yoanpetrov.scheduler.service.TaskObserver;
 import com.yoanpetrov.scheduler.service.tasks.CommandLineTaskResult;
@@ -31,16 +32,22 @@ public class Worker extends Thread implements TaskObservable {
   public void run() {
     running.set(true);
 
-    while (running.get()) {
+    while (running.get() && !Thread.interrupted()) {
+      Task t = null;
       try {
-        Task t = taskQueue.take();
+        t = taskQueue.take();
         lastTaskId.set(t.id());
         CommandLineTaskResult result = t.call();
         taskObserver.notifyFinishedTask(t, this, result);
       } catch (InterruptedException e) {
-
+        Thread.currentThread().interrupt();
+        terminate();
       } catch (Exception e) {
-
+        if (t != null) {
+          Log.logger.error("Error while executing task {}.", t.id(), e);
+        } else {
+          Log.logger.error("Error while executing task (task is null).");
+        }
       }
     }
   }
