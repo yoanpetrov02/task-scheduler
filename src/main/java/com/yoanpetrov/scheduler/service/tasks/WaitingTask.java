@@ -1,5 +1,7 @@
 package com.yoanpetrov.scheduler.service.tasks;
 
+import com.yoanpetrov.scheduler.service.results.TaskResult;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -16,7 +18,7 @@ class WaitingTask implements Task {
   }
 
   @Override
-  public CommandLineTaskResult call() throws IOException, InterruptedException {
+  public TaskResult call() throws IOException, InterruptedException {
     ProcessBuilder builder = new ProcessBuilder();
     builder.command(commands);
 
@@ -30,7 +32,7 @@ class WaitingTask implements Task {
     int exitCode = p.exitValue();
     List<String> outputs = StreamUtils.readLines(p.getInputStream());
 
-    return new CommandLineTaskResult(exitCode, outputs);
+    return new TaskResult(id, exitCode, List.of(commands), outputs);
   }
 
   @Override

@@ -1,6 +1,7 @@
 package com.yoanpetrov.scheduler.service.tasks;
 
 import com.yoanpetrov.scheduler.Log;
+import com.yoanpetrov.scheduler.service.results.TaskResult;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ class NotifyingTask implements Task {
   }
 
   @Override
-  public CommandLineTaskResult call() throws Exception {
+  public TaskResult call() throws Exception {
     ProcessBuilder builder = new ProcessBuilder();
     builder.command(commands);
 
@@ -29,7 +30,7 @@ class NotifyingTask implements Task {
     int exitCode = p.exitValue();
     List<String> outputs = StreamUtils.readLines(p.getInputStream());
 
-    return new CommandLineTaskResult(exitCode, outputs);
+    return new TaskResult(id, exitCode, List.of(commands), outputs);
   }
 
   @Override

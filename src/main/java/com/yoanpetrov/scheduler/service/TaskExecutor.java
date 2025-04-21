@@ -1,9 +1,11 @@
 package com.yoanpetrov.scheduler.service;
 
 import com.yoanpetrov.scheduler.Log;
+import com.yoanpetrov.scheduler.service.results.ResultStorage;
 import com.yoanpetrov.scheduler.service.tasks.Task;
 import com.yoanpetrov.scheduler.service.workers.WorkerThreadPool;
 
+import java.util.List;
 import java.util.concurrent.*;
 
 public class TaskExecutor {
@@ -12,13 +14,13 @@ public class TaskExecutor {
   private final BlockingQueue<Task> taskQueue;
   private final Distributor distributorThread;
 
-  public TaskExecutor(int threadPoolSize) {
+  public TaskExecutor(int threadPoolSize, List<ResultStorage> resultStorages) {
     this.workerThreadPool = new WorkerThreadPool(threadPoolSize);
     this.taskQueue = new LinkedBlockingQueue<>();
-    this.distributorThread = new Distributor(workerThreadPool, taskQueue);
+    this.distributorThread = new Distributor(workerThreadPool, taskQueue, resultStorages);
     this.distributorThread.setDaemon(true);
     this.distributorThread.start();
-    Log.logger.info("Started distributor thread");
+    Log.logger.info("Started distributor thread. Pool has {} threads.", threadPoolSize);
   }
 
   public void submitTask(Task t) {
@@ -33,9 +35,10 @@ public class TaskExecutor {
 
   public void shutdownAndAwaitTermination() {
     try {
-      distributorThread.terminate();
+      distributorThread.interrupt();
       distributorThread.join(10000);
       workerThreadPool.shutdown();
-    } catch (InterruptedException ignored) {}
+    } catch (InterruptedException ignored) {
+    }
   }
 }
