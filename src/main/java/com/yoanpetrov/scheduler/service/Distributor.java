@@ -36,7 +36,7 @@ public class Distributor implements Runnable, TaskObserver {
       try {
         Task t = taskQueue.take();
         Log.logger.debug("Scheduling task with id: {}", t.id());
-        Worker w = workerThreadPool.retrieveWorkerForTask(t.id());
+        Worker w = workerThreadPool.retrieveWorker();
         w.registerTaskObserver(this);
         w.giveTask(t);
       } catch (InterruptedException e) {
@@ -49,7 +49,7 @@ public class Distributor implements Runnable, TaskObserver {
   @Override
   public void notifyFinishedTask(Task t, Worker w, TaskResult result) throws InterruptedException {
     Log.logger.debug("Task with id: {} has finished execution.", t.id());
-    workerThreadPool.returnWorker(t.id(), w);
+    workerThreadPool.returnWorker(w);
     storeResult(result);
   }
 
