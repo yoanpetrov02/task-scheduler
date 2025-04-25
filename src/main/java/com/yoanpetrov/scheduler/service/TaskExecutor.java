@@ -12,12 +12,13 @@ public class TaskExecutor {
 
   private final WorkerThreadPool workerThreadPool;
   private final BlockingQueue<Task> taskQueue;
-  private final Distributor distributorThread;
+  private final Thread distributorThread;
 
   public TaskExecutor(int threadPoolSize, List<ResultStorage> resultStorages) {
     this.workerThreadPool = new WorkerThreadPool(threadPoolSize);
     this.taskQueue = new LinkedBlockingQueue<>();
-    this.distributorThread = new Distributor(workerThreadPool, taskQueue, resultStorages);
+    this.distributorThread = new Thread(new Distributor(workerThreadPool, taskQueue, resultStorages));
+    this.distributorThread.setName("Distributor");
     this.distributorThread.setDaemon(true);
     this.distributorThread.start();
     Log.logger.info("Started distributor thread. Pool has {} threads.", threadPoolSize);

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Distributor extends Thread implements TaskObserver {
+public class Distributor implements Runnable, TaskObserver {
 
   private final WorkerThreadPool workerThreadPool;
   private final BlockingQueue<Task> taskQueue;
@@ -22,7 +22,6 @@ public class Distributor extends Thread implements TaskObserver {
       WorkerThreadPool workerThreadPool,
       BlockingQueue<Task> taskQueue,
       List<ResultStorage> resultStorages) {
-    this.setName("Distributor");
     this.workerThreadPool = workerThreadPool;
     this.taskQueue = taskQueue;
     this.running = new AtomicBoolean();
@@ -54,7 +53,7 @@ public class Distributor extends Thread implements TaskObserver {
     storeResult(result);
   }
 
-  public void terminate() {
+  private void terminate() {
     running.set(false);
   }
 
