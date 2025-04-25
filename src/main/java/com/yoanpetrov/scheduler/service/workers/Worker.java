@@ -53,7 +53,7 @@ public class Worker extends Thread implements TaskObservable {
     taskQueue.put(t);
   }
 
-  public void terminate() {
+  private void terminate() {
     running.set(false);
   }
 }
