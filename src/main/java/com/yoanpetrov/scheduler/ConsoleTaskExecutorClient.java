@@ -7,7 +7,7 @@ import com.yoanpetrov.scheduler.service.tasks.TaskIdGenerator;
 
 import java.util.Scanner;
 
-// this should not be a thread, we want this to execute in the current thread.
+// this should not be a thread, we want this to execute in the main thread.
 public class ConsoleTaskExecutorClient {
 
   private static final String STOP_MESSAGE = "STOP!";
