@@ -2,7 +2,7 @@ package com.yoanpetrov.scheduler;
 
 import com.yoanpetrov.scheduler.service.TaskExecutor;
 import com.yoanpetrov.scheduler.service.tasks.Task;
-import com.yoanpetrov.scheduler.service.tasks.Tasks;
+import com.yoanpetrov.scheduler.service.tasks.TaskFactory;
 
 import java.util.Scanner;
 
@@ -54,13 +54,13 @@ public class ConsoleTaskExecutorClient {
   private Task getTask(String type, String command) {
     switch (type) {
       case "standard" -> {
-        return Tasks.newStandardTask(command);
+        return TaskFactory.newStandardTask(command);
       }
       case "notifying" -> {
-        return Tasks.newNotifyingTask(command);
+        return TaskFactory.newNotifyingTask(command);
       }
       case "waiting" -> {
-        return Tasks.newWaitingTask(command, 3000);
+        return TaskFactory.newWaitingTask(command, 3000);
       }
       default -> throw new IllegalArgumentException("Invalid task type!");
     }

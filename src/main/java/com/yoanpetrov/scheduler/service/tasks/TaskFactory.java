@@ -4,7 +4,7 @@ import com.yoanpetrov.scheduler.service.OperatingSystem;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public final class Tasks {
+public final class TaskFactory {
 
   private static final AtomicLong numberOfTasksCreated = new AtomicLong(0);
 
