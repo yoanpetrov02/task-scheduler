@@ -14,7 +14,7 @@ public class WorkerThreadPool {
 
   private final Set<Worker> workerSet;
   private final BlockingQueue<Worker> availableWorkers;
-  private final AtomicBoolean running;
+  private final AtomicBoolean isShutdown;
 
   public WorkerThreadPool(int size) {
     this.workerSet = Collections.synchronizedSet(new HashSet<>());
@@ -28,7 +28,7 @@ public class WorkerThreadPool {
                   return w;
                 })
             .collect(Collectors.toCollection(LinkedBlockingQueue::new));
-    this.running = new AtomicBoolean(true);
+    this.isShutdown = new AtomicBoolean();
   }
 
   /**
@@ -38,12 +38,12 @@ public class WorkerThreadPool {
    *
    * @return the retrieved {@link Worker}.
    * @throws InterruptedException if the thread is interrupted.
-   * @throws IllegalStateException if the pool is not running due to a prior {@link #shutdown()}
+   * @throws IllegalStateException if the pool has been shut down due to a prior {@link #shutdown()}
    *     call.
    */
   public synchronized Worker retrieveWorker() throws InterruptedException {
-    if (!running.get()) {
-      throw new IllegalStateException("Worker thread pool is not running!");
+    if (isShutdown.get()) {
+      throw new IllegalStateException("Worker thread pool has been shut down!");
     }
     return availableWorkers.take();
   }
@@ -53,12 +53,12 @@ public class WorkerThreadPool {
    *
    * @param w the {@link Worker} to return to the pool.
    * @throws InterruptedException if the thread is interrupted.
-   * @throws IllegalStateException if the pool is not running due to a prior {@link #shutdown()}
+   * @throws IllegalStateException if the pool has been shut down due to a prior {@link #shutdown()}
    *     call, or if the given worker is not managed by this pool.
    */
   public synchronized void returnWorker(Worker w) throws InterruptedException {
-    if (!running.get()) {
-      throw new IllegalStateException("Worker thread pool is not running!");
+    if (isShutdown.get()) {
+      throw new IllegalStateException("Worker thread pool has been shut down!");
     }
     if (!workerSet.contains(w)) {
       throw new IllegalStateException(
@@ -74,7 +74,7 @@ public class WorkerThreadPool {
    * is an invalid operation.
    */
   public synchronized void shutdown() {
-    running.set(false);
+    isShutdown.set(true);
     workerSet.forEach(Thread::interrupt);
   }
 }
