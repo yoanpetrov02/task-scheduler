@@ -6,7 +6,8 @@ import com.yoanpetrov.scheduler.service.tasks.Task;
 import com.yoanpetrov.scheduler.service.workers.WorkerThreadPool;
 
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class TaskExecutor {
 
@@ -17,7 +18,8 @@ public class TaskExecutor {
   public TaskExecutor(int threadPoolSize, List<ResultStorage> resultStorages) {
     this.workerThreadPool = new WorkerThreadPool(threadPoolSize);
     this.taskQueue = new LinkedBlockingQueue<>();
-    this.distributorThread = new Thread(new Distributor(workerThreadPool, taskQueue, resultStorages));
+    this.distributorThread =
+        new Thread(new Distributor(workerThreadPool, taskQueue, resultStorages));
     this.distributorThread.setName("Distributor");
     this.distributorThread.setDaemon(true);
     this.distributorThread.start();
