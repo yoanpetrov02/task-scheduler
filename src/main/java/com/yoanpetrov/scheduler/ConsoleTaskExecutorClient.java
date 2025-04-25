@@ -3,6 +3,7 @@ package com.yoanpetrov.scheduler;
 import com.yoanpetrov.scheduler.service.TaskExecutor;
 import com.yoanpetrov.scheduler.service.tasks.Task;
 import com.yoanpetrov.scheduler.service.tasks.TaskFactory;
+import com.yoanpetrov.scheduler.service.tasks.TaskIdGenerator;
 
 import java.util.Scanner;
 
@@ -12,9 +13,11 @@ public class ConsoleTaskExecutorClient {
   private static final String STOP_MESSAGE = "STOP!";
 
   private final TaskExecutor taskExecutor;
+  private final TaskIdGenerator idGenerator;
 
   public ConsoleTaskExecutorClient(TaskExecutor taskExecutor) {
     this.taskExecutor = taskExecutor;
+    this.idGenerator = new IncrementalTaskIdGenerator();
   }
 
   public void start() {
@@ -54,13 +57,13 @@ public class ConsoleTaskExecutorClient {
   private Task getTask(String type, String command) {
     switch (type) {
       case "standard" -> {
-        return TaskFactory.newStandardTask(command);
+        return TaskFactory.newStandardTask(command, idGenerator);
       }
       case "notifying" -> {
-        return TaskFactory.newNotifyingTask(command);
+        return TaskFactory.newNotifyingTask(command, idGenerator);
       }
       case "waiting" -> {
-        return TaskFactory.newWaitingTask(command, 3000);
+        return TaskFactory.newWaitingTask(command, 3000, idGenerator);
       }
       default -> throw new IllegalArgumentException("Invalid task type!");
     }

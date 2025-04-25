@@ -2,22 +2,18 @@ package com.yoanpetrov.scheduler.service.tasks;
 
 import com.yoanpetrov.scheduler.service.OperatingSystem;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 public final class TaskFactory {
 
-  private static final AtomicLong numberOfTasksCreated = new AtomicLong(0);
-
-  public static Task newStandardTask(String command) {
-    return new StandardTask(numberOfTasksCreated.addAndGet(1), generateCommandArray(command));
+  public static Task newStandardTask(String command, TaskIdGenerator idGenerator) {
+    return new StandardTask(idGenerator.getNextId(), generateCommandArray(command));
   }
 
-  public static Task newWaitingTask(String command, long waitMs) {
-    return new WaitingTask(numberOfTasksCreated.addAndGet(1), generateCommandArray(command), waitMs);
+  public static Task newWaitingTask(String command, long waitMs, TaskIdGenerator idGenerator) {
+    return new WaitingTask(idGenerator.getNextId(), generateCommandArray(command), waitMs);
   }
 
-  public static Task newNotifyingTask(String command) {
-    return new NotifyingTask(numberOfTasksCreated.addAndGet(1), generateCommandArray(command));
+  public static Task newNotifyingTask(String command, TaskIdGenerator idGenerator) {
+    return new NotifyingTask(idGenerator.getNextId(), generateCommandArray(command));
   }
 
   private static String[] generateCommandArray(String command) {
