@@ -2,7 +2,10 @@ package com.yoanpetrov.scheduler.service.tasks;
 
 import com.yoanpetrov.scheduler.service.OperatingSystem;
 
+/** Factory class for creation of different {@link Task} implementations. */
 public final class TaskFactory {
+
+  private TaskFactory() {}
 
   public static Task newStandardTask(String command, TaskIdGenerator idGenerator) {
     return new StandardTask(idGenerator.getNextId(), generateCommandArray(command));

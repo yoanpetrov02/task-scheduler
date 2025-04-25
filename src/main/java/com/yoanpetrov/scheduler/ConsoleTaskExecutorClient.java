@@ -47,6 +47,8 @@ public class ConsoleTaskExecutorClient {
         taskExecutor.submitTask(t);
       } catch (IllegalArgumentException e) {
         Log.logger.error(e.getMessage());
+      } catch (IllegalStateException e) {
+        Log.logger.error("Could not submit task to task executor: ", e);
       }
     }
 

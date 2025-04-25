@@ -1,7 +1,7 @@
 package com.yoanpetrov.scheduler.service.workers;
 
 import com.yoanpetrov.scheduler.Log;
-import com.yoanpetrov.scheduler.service.TaskObservable;
+import com.yoanpetrov.scheduler.service.ObservableTaskExecutor;
 import com.yoanpetrov.scheduler.service.TaskObserver;
 import com.yoanpetrov.scheduler.service.results.TaskResult;
 import com.yoanpetrov.scheduler.service.tasks.Task;
@@ -9,7 +9,12 @@ import com.yoanpetrov.scheduler.service.tasks.Task;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Worker extends Thread implements TaskObservable {
+/**
+ * A worker thread, responsible for executing {@link Task} execution. Each worker maintains an
+ * internal queue that can be used to pass tasks to it. While the thread is running, it will always
+ * try to poll this queue and execute the given task, blocking if no task is available.
+ */
+public class Worker extends Thread implements ObservableTaskExecutor {
 
   private final SynchronousQueue<Task> taskQueue;
   private final AtomicBoolean running;
@@ -21,7 +26,7 @@ public class Worker extends Thread implements TaskObservable {
   }
 
   @Override
-  public void registerTaskObserver(TaskObserver t) {
+  public void register(TaskObserver t) {
     taskObserver = t;
   }
 
@@ -35,7 +40,7 @@ public class Worker extends Thread implements TaskObservable {
         t = taskQueue.take();
         Log.logger.debug("Executing task with id: {}", t.id());
         TaskResult result = t.call();
-        taskObserver.notifyFinishedTask(t, this, result);
+        taskObserver.notifyTaskFinished(t, this, result);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         terminate();

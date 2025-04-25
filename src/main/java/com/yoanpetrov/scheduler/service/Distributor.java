@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * A task distributor, responsible for handling tasks over to worker threads that execute them, and
+ * recording/logging the results.
+ */
 public class Distributor implements Runnable, TaskObserver {
 
   private final WorkerThreadPool workerThreadPool;
@@ -37,19 +41,25 @@ public class Distributor implements Runnable, TaskObserver {
         Task t = taskQueue.take();
         Log.logger.debug("Scheduling task with id: {}", t.id());
         Worker w = workerThreadPool.retrieveWorker();
-        w.registerTaskObserver(this);
+        w.register(this);
         w.giveTask(t);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         terminate();
+      } catch (IllegalStateException e) {
+        Log.logger.warn("Couldn't retrieve worker for task: ", e);
       }
     }
   }
 
   @Override
-  public void notifyFinishedTask(Task t, Worker w, TaskResult result) throws InterruptedException {
+  public void notifyTaskFinished(Task t, Worker w, TaskResult result) throws InterruptedException {
     Log.logger.debug("Task with id: {} has finished execution.", t.id());
-    workerThreadPool.returnWorker(w);
+    try {
+      workerThreadPool.returnWorker(w);
+    } catch (IllegalStateException e) {
+      Log.logger.warn("Couldn't return thread \"{}\" to thread pool: ", w.getName(), e);
+    }
     storeResult(result);
   }
 
